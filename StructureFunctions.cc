@@ -1,7 +1,3 @@
-/*
-  Author: Valerio Bertone
- */
-
 // LHAPDF libs
 #include "LHAPDF/LHAPDF.h"
 
@@ -9,7 +5,7 @@
 #include "apfel/apfelxx.h"
 
 // APFEL libs
-#include "APFEL/APFEL.h"
+#include "apfel/APFEL.h"
 
 // Open LHAPDF set
 LHAPDF::PDF* dist = LHAPDF::mkPDF("CT14nnlo");
@@ -42,7 +38,7 @@ int main()
   const double Qin   = dist->qMin();
 
   /////////////////////
-  // Initialize APFEL++
+  // Initialise APFEL++
   /////////////////////
 
   // Define grid in terms of subgrids. Each subgrid is constructed
@@ -59,7 +55,7 @@ int main()
   // Use alpha_s from LHAPDF
   const auto as = [&] (double const& mu) -> double{ return dist->alphasQ(mu); };
 
-  // Effective EW charges for a space process (i.e. DIS)
+  // Effective EW charges for a space-like process (i.e. DIS)
   const std::function<std::vector<double>(double const&)> fBq = [=] (double const& Q) -> std::vector<double> { return apfel::ElectroWeakCharges(Q, false); };
 
   // Define input PDFs as a lambda function using the LHAPDF
@@ -69,21 +65,22 @@ int main()
   // (tbar, bbar, ..., g, ..., b, t) into the physical basis.
   const auto PDFs = [&] (double const& x, double const& Q) -> std::map<int, double>{ return apfel::PhysToQCDEv(dist->xfxQ(x, Q)); };
 
-  // Initialize F2 NC structure function in the ZM-VFNS. Functions
+  // Initialise F2 NC structure function in the ZM-VFNS. Functions
   // exist for FL and xF3 (btw, APFEL produces results for xF3, not
   // F3). Also CC structure functions are implemented in APFEL++. Also
-  // the massive scheme is supported. At the moment CC massive
-  // structure functions aren't there but can be implemented.
+  // the massive scheme and its massless limit are supported. At the
+  // moment CC massive structure functions aren't there but can be
+  // easily implemented if needed.
   const auto F2 = BuildStructureFunctions(InitializeF2NCObjectsZM(g, Thresholds), PDFs, pto, as, fBq);
 
   // Tabulate the ftructure function over 50 intervals in the range
-  // [1:1000] GeV using interpolation degree 3. Take into account that
-  // at thresholds straucture functions may not be continuos feeding
-  // the contructor with the thresholds.
+  // [1: 1000] GeV using interpolation degree 3. Take into account
+  // that at thresholds straucture functions may not be continuos
+  // feeding the contructor with the thresholds.
   const apfel::TabulateObject<apfel::Distribution> F2total {[&] (double const& Q) -> apfel::Distribution{ return F2.at(0).Evaluate(Q); }, 50, 1, 1000, 3, Thresholds};
 
   /////////////////////
-  // Initialize APFEL
+  // Initialise APFEL
   /////////////////////
 
   // I hope that the name of the setting functions are

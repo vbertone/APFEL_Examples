@@ -1,7 +1,3 @@
-/*
-  Author: Valerio Bertone
- */
-
 // LHAPDF libs
 #include "LHAPDF/LHAPDF.h"
 
@@ -9,7 +5,7 @@
 #include "apfel/apfelxx.h"
 
 // APFEL libs
-#include "APFEL/APFEL.h"
+#include "apfel/APFEL.h"
 
 // Open LHAPDF set
 LHAPDF::PDF* dist = LHAPDF::mkPDF("CT14nnlo");
@@ -42,7 +38,7 @@ int main()
   const double Qin   = dist->qMin();
 
   /////////////////////
-  // Initialize APFEL++
+  // Initialise APFEL++
   /////////////////////
 
   // Define grid in terms of subgrids. Each subgrid is constructed
@@ -80,19 +76,21 @@ int main()
   // Initialise evolution setting "Qin" as an initial scale. This
   // means that the function "InPDFs" will be called at "Qin". It uses
   // alpha_s defined above but any other function can be used.
-  auto EvolvedPDFs = BuildDglap(InitializeDglapObjectsQCD(g, Thresholds), InPDFs, Qin, pto, as);
+  auto EvolvedPDFs = BuildDglap(InitializeDglapObjectsQCD(g, Masses, Thresholds), InPDFs, Qin, pto, as);
+  //auto EvolvedPDFs = BuildDglap(InitializeDglapObjectsQCD(g, Thresholds), InPDFs, Qin, pto, as); // This constructor can also be used if thresholds and masses are equal
 
   // Finally tabulate PDFs. The constructor is the same as that of
   // "as".
   const apfel::TabulateObject<apfel::Set<apfel::Distribution>> TabulatedPDFs{*EvolvedPDFs, 50, 0.95, 1000, 3};
 
-  // Call evolved PDFs at mu. Notice that APFEL++ returns PDFs in the
-  // QCD evolution basis therefore we need to rotate them back to the
-  // physical basis which done through the function "QCDEvToPhys".
+  // Call evolved PDFs at "mu". Notice that APFEL++ returns PDFs in
+  // the QCD evolution basis, therefore one needs to rotate them back
+  // to the physical basis which is done through the function
+  // "QCDEvToPhys".
   const std::map<int, apfel::Distribution> tpdfs = apfel::QCDEvToPhys(TabulatedPDFs.Evaluate(mu).GetObjects());
 
   /////////////////////
-  // Initialize APFEL
+  // Initialise APFEL
   /////////////////////
 
   // I hope that the name of the setting functions are
@@ -116,7 +114,7 @@ int main()
   // Print results
   std::cout << std::scientific;
 
-  // First print alphas from APFEL++, APFEL, and LHAPDF
+  // Print alphas from APFEL++, APFEL, and LHAPDF
   std::cout << "\nmu = " << mu << " GeV\n" << std::endl;
   std::cout << "APFEL++: AlphaQCD(Q) = " << Alphas.Evaluate(mu) << std::endl;
   std::cout << "APFEL:   AlphaQCD(Q) = " << APFEL::AlphaQCD(mu) << std::endl;
