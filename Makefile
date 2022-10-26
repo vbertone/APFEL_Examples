@@ -22,12 +22,15 @@ LDFLAGS  += $(LHAPDFINCS) $(APFELINCS) $(APFELPPINCS)
 CLIBS += $(LHAPDFLIBS) $(APFELLIBS) $(APFELPPLIBS)
 
 install : all
-all : Evolution StructureFunctions
+all : Evolution StructureFunctions StructureFunctionsIsoscalar
 
 Evolution: Evolution.o 
 	$(CXX) $(LDFLAGS) -o $@ $< $(CLIBS)
 
 StructureFunctions: StructureFunctions.o 
+	$(CXX) $(LDFLAGS) -o $@ $< $(CLIBS)
+
+StructureFunctionsIsoscalar: StructureFunctionsIsoscalar.o 
 	$(CXX) $(LDFLAGS) -o $@ $< $(CLIBS)
 
 .SUFFIXES : .cc .o .f .c
@@ -39,5 +42,5 @@ StructureFunctions: StructureFunctions.o
 	$(F77)  -c $< 
 
 clean:
-	rm -rf *.lo *.o *.la Evolution StructureFunctions *~
+	rm -rf *.lo *.o *.la Evolution StructureFunctions StructureFunctionsIsoscalar *~
 
